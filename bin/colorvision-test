@@ -1,0 +1,187 @@
+#!/usr/bin/env node
+
+const ColorVisionGenerator = require('../src/colorvision-generator');
+
+/**
+ * Command line interface for ColorVision Test Creator
+ */
+class ColorVisionCLI {
+  constructor() {
+    this.defaultOptions = {
+      output: null,
+      width: 800,
+      height: 800,
+      fontSize: 300,
+      minRadius: 3,
+      maxRadius: 20,
+      tolerance: 0.1,
+      onColor: '#FF6B35',
+      offColor: '#4ECDC4',
+      margin: 50,
+      circular: false,
+      maxTextFit: false
+    };
+  }
+
+  /**
+   * Show help information
+   */
+  showHelp() {
+    console.log(`
+ColorVision Test Creator - Educational Color Vision Pattern Generator
+===================================================================
+
+⚠️  EDUCATIONAL USE ONLY - NOT FOR MEDICAL DIAGNOSIS ⚠️
+
+Usage: colorvision-test [text] [options]
+
+Examples:
+  colorvision-test "8"                    # Generate test with number 8 (saves to output/)
+  colorvision-test "A" --output letter-A.png  # Generate test with letter A (saves to output/)
+  colorvision-test "42" --size 1000 --font 400  # Custom size and font
+  colorvision-test "3" --circular --margin 80   # Circular test with large margin
+  colorvision-test "5" --circular --max-fit    # Maximum text size in circle
+
+Options:
+  --output, -o     Output filename (default: output/colorvision-[text].png)
+  --size, -s       Canvas size in pixels (default: 800)
+  --font, -f       Font size (default: 300)
+  --min-radius     Minimum circle radius (default: 3)
+  --max-radius     Maximum circle radius (default: 20)
+  --tolerance      Color mixing tolerance (default: 0.1)
+  --on-color       Color for text (default: #FF6B35)
+  --off-color      Color for background (default: #4ECDC4)
+  --margin, -m     Margin around text in pixels (default: 50)
+  --circular, -c   Create circular image like traditional tests
+  --max-fit        Use maximum text size in circular mode (less margin)
+  --help, -h       Show this help message
+
+Color Examples:
+  Red tones:    #FF6B35, #D2691E, #CD5C5C, #B22222
+  Green tones:  #4ECDC4, #88B04B, #6B8E23, #228B22, #32CD32
+`);
+  }
+
+  /**
+   * Parse command line arguments
+   * @param {string[]} args - Command line arguments
+   * @returns {Object} Parsed options
+   */
+  parseArgs(args) {
+    const options = { ...this.defaultOptions };
+    
+    let i = 0;
+    while (i < args.length) {
+      const arg = args[i];
+      
+      if (arg === '--help' || arg === '-h') {
+        this.showHelp();
+        process.exit(0);
+      } else if (arg === '--output' || arg === '-o') {
+        options.output = args[++i];
+      } else if (arg === '--size' || arg === '-s') {
+        const size = parseInt(args[++i]);
+        options.width = size;
+        options.height = size;
+      } else if (arg === '--font' || arg === '-f') {
+        options.fontSize = parseInt(args[++i]);
+      } else if (arg === '--min-radius') {
+        options.minRadius = parseInt(args[++i]);
+      } else if (arg === '--max-radius') {
+        options.maxRadius = parseInt(args[++i]);
+      } else if (arg === '--tolerance') {
+        options.tolerance = parseFloat(args[++i]);
+      } else if (arg === '--on-color') {
+        options.onColor = args[++i];
+      } else if (arg === '--off-color') {
+        options.offColor = args[++i];
+      } else if (arg === '--margin' || arg === '-m') {
+        options.margin = parseInt(args[++i]);
+      } else if (arg === '--circular' || arg === '-c') {
+        options.circular = true;
+      } else if (arg === '--max-fit') {
+        options.maxTextFit = true;
+      } else if (!options.text && !arg.startsWith('-')) {
+        options.text = arg;
+      } else {
+        console.error(`Unknown option: ${arg}`);
+        process.exit(1);
+      }
+      
+      i++;
+    }
+    
+    return options;
+  }
+
+  /**
+   * Generate output filename
+   * @param {string} text - Input text
+   * @param {string|null} customOutput - Custom output filename
+   * @returns {string} Output filename
+   */
+  generateOutputPath(text, customOutput) {
+    if (customOutput) {
+      // If output is just a filename (no path), put it in output folder
+      if (!customOutput.includes('/') && !customOutput.includes('\\')) {
+        return `output/${customOutput}`;
+      }
+      return customOutput;
+    }
+    
+    // Generate default filename
+    const safeText = text.replace(/[^a-zA-Z0-9]/g, '-');
+    return `output/colorvision-${safeText}.png`;
+  }
+
+  /**
+   * Run the CLI application
+   * @param {string[]} args - Command line arguments
+   */
+  async run(args) {
+    const options = this.parseArgs(args);
+    
+    if (!options.text) {
+      console.error('Error: Please provide text to generate a test for.');
+      console.error('Use --help for usage information.');
+      process.exit(1);
+    }
+
+    const outputPath = this.generateOutputPath(options.text, options.output);
+
+    try {
+      console.log(`Generating color vision test for "${options.text}"...`);
+      
+      const generator = new ColorVisionGenerator({
+        width: options.width,
+        height: options.height,
+        fontSize: options.fontSize,
+        minRadius: options.minRadius,
+        maxRadius: options.maxRadius,
+        tolerance: options.tolerance,
+        onColor: options.onColor,
+        offColor: options.offColor,
+        margin: options.margin,
+        circular: options.circular,
+        maxTextFit: options.maxTextFit
+      });
+
+      const result = await generator.generate(options.text, outputPath);
+      
+      console.log(`\n✅ Successfully generated: ${result.outputPath}`);
+      console.log(`   Circles used: ${result.circleCount}`);
+      
+    } catch (error) {
+      console.error('❌ Error generating test:', error.message);
+      process.exit(1);
+    }
+  }
+}
+
+// Run CLI if called directly
+if (require.main === module) {
+  const cli = new ColorVisionCLI();
+  cli.run(process.argv.slice(2));
+}
+
+module.exports = ColorVisionCLI;

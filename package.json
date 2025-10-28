@@ -1,0 +1,38 @@
+{
+  "name": "colorvision-test-creator",
+  "version": "1.0.0",
+  "description": "Generate educational color vision test images inspired by traditional methods. For educational and artistic use only - not for medical diagnosis.",
+  "main": "index.js",
+  "bin": {
+    "colorvision-test": "./bin/colorvision-test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "example": "node examples/basic-usage.js",
+    "cli": "node bin/colorvision-test"
+  },
+  "keywords": [
+    "color-vision",
+    "color-blindness",
+    "test-generator", 
+    "educational",
+    "accessibility",
+    "canvas",
+    "image-generation",
+    "ishihara-style",
+    "vision-test"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/colorvision-test-creator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/username/colorvision-test-creator/issues"
+  },
+  "homepage": "https://github.com/username/colorvision-test-creator#readme",
+  "dependencies": {
+    "canvas": "^3.2.0"
+  }
+}
