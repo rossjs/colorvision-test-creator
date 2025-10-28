@@ -18,4 +18,5 @@ module.exports.ColorVisionGenerator = ColorVisionGenerator;
 module.exports.TextProcessor = require('./src/utils/text-processor');
 module.exports.CirclePlacer = require('./src/utils/circle-placer');
 module.exports.CanvasUtils = require('./src/utils/canvas-utils');
+module.exports.ColorPalettes = require('./src/utils/color-palettes');
 module.exports.Luminance = require('./src/utils/luminance');

@@ -20,7 +20,9 @@ Generate educational color vision test images from text input. Create Ishihara-s
 🎯 **Professional Quality** - Thousands of precisely placed colored circles  
 🔴 **Circular & Rectangular** - Traditional round plates or modern rectangular formats  
 📝 **Multi-line Support** - Automatic word splitting for readable layouts  
-🎨 **Customizable Colors** - Full control over foreground and background colors  
+🎨 **Color Palette Presets** - 11 built-in palettes for different color vision types  
+🖼️ **Multiple Formats** - Generate PNG or SVG files  
+🔍 **Transparent Backgrounds** - Support for transparent PNG and SVG output  
 📏 **Smart Sizing** - Automatic font adjustment to fit within boundaries  
 ⚙️ **Flexible Options** - Margins, circle sizes, tolerances, and more  
 🚀 **Modern Architecture** - Clean, modular codebase with professional structure
@@ -37,10 +39,55 @@ npx colorvision-test "8"
 # Generate circular test with custom colors
 npx colorvision-test "42" --circular --on-color "#D2691E" --off-color "#32CD32"
 
+# Use color palette presets for specific color blindness types
+npx colorvision-test "8" --palette protanopia --circular
+
+Format Examples:
+  colorvision-test "8" --format svg          # Generate SVG output
+  colorvision-test "A" --transparent        # PNG with transparent background
+  colorvision-test "3" --palette protanopia # Use red-blind test colors
+
+Color Examples:
+  Red tones:    #FF6B35, #D2691E, #CD5C5C, #B22222
+  Green tones:  #4ECDC4, #88B04B, #6B8E23, #228B22, #32CD32
+
+### Color Palette Presets
+
+The tool includes 11 built-in color palettes optimized for different types of color vision deficiencies:
+
+```bash
+# List all available palettes
+colorvision-test --list-palettes
+
+# Common palette usage
+colorvision-test "8" --palette protanopia     # Red-blind test colors
+colorvision-test "5" --palette deuteranopia   # Green-blind test colors  
+colorvision-test "3" --palette tritanopia     # Blue-blind test colors
+colorvision-test "A" --palette ishihara-classic  # Traditional Ishihara colors
+```
+
+**Available Palettes:**
+- `default` - Good general contrast for most color vision types
+- `protanopia` - Optimized for testing red color blindness
+- `deuteranopia` - Optimized for testing green color blindness  
+- `tritanopia` - Optimized for testing blue color blindness
+- `high-contrast-red` - Maximum contrast red/green combination
+- `high-contrast-blue` - Maximum contrast blue/yellow combination
+- `subtle-red-green` - Subtle red-green difference for mild deficiencies
+- `subtle-brown-green` - Brown-green combination often confused
+- `monochrome` - High luminance contrast for monochromacy
+- `scientific-red` - Standard red used in color vision research
+- `ishihara-classic` - Colors inspired by traditional Ishihara plates
+
 # Programmatic usage
 const ColorVisionGenerator = require('colorvision-test-creator');
-const generator = new ColorVisionGenerator({ circular: true });
-await generator.generate('5', 'output/test.png');
+const generator = new ColorVisionGenerator({ 
+  circular: true, 
+  palette: 'deuteranopia',
+  format: 'svg',
+  transparent: true
+});
+await generator.generate('5', 'output/test.svg');
 ```
 
 ## Contributing
@@ -124,6 +171,10 @@ Options:
   --margin, -m     Margin around text in pixels (default: 50)
   --circular, -c   Create circular image like traditional tests
   --max-fit        Use maximum text size in circular mode (less margin)
+  --palette, -p    Use predefined color palette
+  --format         Output format: png or svg (default: png)
+  --transparent    Use transparent background
+  --list-palettes  Show available color palettes
   --help, -h       Show help message
 ```
 
@@ -136,23 +187,49 @@ const ColorVisionGenerator = require('colorvision-test-creator');
 const generator = new ColorVisionGenerator();
 await generator.generate('8', 'output/my-test.png');
 
-// With custom options
+// With custom options including new features
 const customGenerator = new ColorVisionGenerator({
   width: 1000,
   height: 1000,
   circular: true,
-  onColor: '#D2691E',
-  offColor: '#32CD32',
+  palette: 'protanopia',    // Use color blindness palette
+  format: 'svg',            // Generate SVG output
+  transparent: true,        // Transparent background
   fontSize: 400,
   margin: 80
 });
 
-const result = await customGenerator.generate('42', 'output/custom-test.png');
+const result = await customGenerator.generate('42', 'output/custom-test.svg');
 console.log(`Generated ${result.circleCount} circles in ${result.outputPath}`);
 
 // Using named imports for utilities
-const { TextProcessor, CirclePlacer, CanvasUtils } = require('colorvision-test-creator');
+const { TextProcessor, CirclePlacer, CanvasUtils, ColorPalettes } = require('colorvision-test-creator');
+
+// Working with color palettes programmatically
+const availablePalettes = ColorPalettes.getPaletteNames();
+const protanopiaColors = ColorPalettes.getPalette('protanopia');
 ```
+
+### Output Formats
+
+The tool supports multiple output formats to suit different use cases:
+
+**PNG Format (Default)**
+```bash
+colorvision-test "8"                    # Standard PNG with white background
+colorvision-test "8" --transparent     # PNG with transparent background
+```
+
+**SVG Format (Vector)**
+```bash
+colorvision-test "8" --format svg      # SVG with white background
+colorvision-test "8" --format svg --transparent  # SVG with transparent background
+```
+
+**Format Benefits:**
+- **PNG**: Raster format, widely supported, good for web and print
+- **SVG**: Vector format, infinitely scalable, perfect for high-resolution displays and print
+- **Transparent**: Ideal for overlaying on other backgrounds or integration into designs
 
 ### NPM Scripts
 
@@ -170,8 +247,9 @@ colorvision-test-creator/
 ├── src/
 │   ├── colorvision-generator.js  # Main generator class
 │   └── utils/
-│       ├── canvas-utils.js       # Canvas operations
+│       ├── canvas-utils.js       # Canvas operations & SVG export
 │       ├── circle-placer.js      # Circle placement logic
+│       ├── color-palettes.js     # Predefined color palettes
 │       ├── luminance.js          # Color calculations
 │       └── text-processor.js     # Text rendering
 ├── examples/
@@ -211,10 +289,12 @@ Popular color combinations that work well for color blindness tests:
 
 ### Generated Files
 
-The scripts will create PNG files in the `output/` folder with the Ishihara test patterns. Each image contains:
+The tool creates PNG or SVG files in the `output/` folder with color vision test patterns. Each image contains:
 - Hundreds to thousands of colored circles
-- Text or numbers visible to people with normal color vision
+- Text or numbers visible to people with normal color vision  
 - Text becomes difficult/impossible to see for people with specific types of color blindness
+- Optional transparent backgrounds for flexible integration
+- Vector SVG format for infinite scalability
 
 ### Dependencies
 
@@ -241,10 +321,26 @@ const generator = new ColorVisionGenerator(options);
 - `margin` (number): Margin around text in pixels (default: 50)
 - `circular` (boolean): Create circular image (default: false)
 - `maxTextFit` (boolean): Use maximum text size in circular mode (default: false)
+- `palette` (string): Color palette name to use (default: null)
+- `format` (string): Output format 'png' or 'svg' (default: 'png')
+- `transparent` (boolean): Use transparent background (default: false)
 
 **Methods:**
 - `generate(text, outputPath)`: Generate color vision test image
   - Returns: `{ outputPath, circleCount }`
+
+### ColorPalettes Utility
+
+```javascript
+const { ColorPalettes } = require('colorvision-test-creator');
+```
+
+**Methods:**
+- `getPaletteNames()`: Get array of all available palette names
+- `getPalette(name)`: Get palette object by name
+- `getAllPalettes()`: Get all palettes as object
+- `isValidPalette(name)`: Check if palette name exists
+- `getPaletteHelpText()`: Get formatted help text for CLI
 
 ## Requirements
 
@@ -282,10 +378,12 @@ This will generate sample images showing:
 
 | Style | Command | Result |
 |-------|---------|---------|
-| **Basic Rectangular** | `colorvision-test "8"` | Standard rectangular format |
+| **Basic Rectangular** | `colorvision-test "8"` | Standard rectangular PNG format |
 | **Traditional Circular** | `colorvision-test "3" --circular` | Classic round color vision plate |
-| **Custom Colors** | `colorvision-test "A" --on-color "#D2691E" --off-color "#32CD32"` | Chocolate on lime green |
-| **Large Format** | `colorvision-test "5" --size 1200 --font 500` | High resolution output |
+| **Color Palette** | `colorvision-test "A" --palette protanopia` | Red-blind optimized colors |
+| **SVG Vector** | `colorvision-test "5" --format svg` | Scalable vector format |
+| **Transparent Background** | `colorvision-test "8" --transparent` | PNG with transparent background |
+| **SVG + Transparent** | `colorvision-test "3" --format svg --transparent` | Vector with transparent background |
 | **Multi-character** | `colorvision-test "42"` | Automatic multi-character layout |
 
 ## Tips for Best Results

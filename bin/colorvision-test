@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const ColorVisionGenerator = require('../src/colorvision-generator');
+const ColorPalettes = require('../src/utils/color-palettes');
 
 /**
  * Command line interface for ColorVision Test Creator
@@ -19,7 +20,10 @@ class ColorVisionCLI {
       offColor: '#4ECDC4',
       margin: 50,
       circular: false,
-      maxTextFit: false
+      maxTextFit: false,
+      palette: null,
+      format: 'png',
+      transparent: false
     };
   }
 
@@ -54,11 +58,35 @@ Options:
   --margin, -m     Margin around text in pixels (default: 50)
   --circular, -c   Create circular image like traditional tests
   --max-fit        Use maximum text size in circular mode (less margin)
+  --palette, -p    Use predefined color palette
+  --format         Output format: png or svg (default: png)
+  --transparent    Use transparent background
+  --list-palettes  Show available color palettes
   --help, -h       Show this help message
+
+Format Examples:
+  colorvision-test "8" --format svg          # Generate SVG output
+  colorvision-test "A" --transparent        # PNG with transparent background
+  colorvision-test "3" --palette protanopia # Use red-blind test colors
 
 Color Examples:
   Red tones:    #FF6B35, #D2691E, #CD5C5C, #B22222
   Green tones:  #4ECDC4, #88B04B, #6B8E23, #228B22, #32CD32
+`);
+  }
+
+  /**
+   * Show available color palettes
+   */
+  showPalettes() {
+    console.log(`
+Available Color Palettes:
+========================
+
+${ColorPalettes.getPaletteHelpText()}
+
+Usage: colorvision-test "8" --palette <palette-name>
+Example: colorvision-test "3" --palette protanopia
 `);
   }
 
@@ -101,6 +129,20 @@ Color Examples:
         options.circular = true;
       } else if (arg === '--max-fit') {
         options.maxTextFit = true;
+      } else if (arg === '--palette' || arg === '-p') {
+        options.palette = args[++i];
+      } else if (arg === '--format') {
+        const format = args[++i].toLowerCase();
+        if (!['png', 'svg'].includes(format)) {
+          console.error(`Invalid format: ${format}. Must be 'png' or 'svg'.`);
+          process.exit(1);
+        }
+        options.format = format;
+      } else if (arg === '--transparent') {
+        options.transparent = true;
+      } else if (arg === '--list-palettes') {
+        this.showPalettes();
+        process.exit(0);
       } else if (!options.text && !arg.startsWith('-')) {
         options.text = arg;
       } else {
@@ -118,9 +160,10 @@ Color Examples:
    * Generate output filename
    * @param {string} text - Input text
    * @param {string|null} customOutput - Custom output filename
+   * @param {string} format - Output format (png/svg)
    * @returns {string} Output filename
    */
-  generateOutputPath(text, customOutput) {
+  generateOutputPath(text, customOutput, format = 'png') {
     if (customOutput) {
       // If output is just a filename (no path), put it in output folder
       if (!customOutput.includes('/') && !customOutput.includes('\\')) {
@@ -129,9 +172,10 @@ Color Examples:
       return customOutput;
     }
     
-    // Generate default filename
+    // Generate default filename with appropriate extension
     const safeText = text.replace(/[^a-zA-Z0-9]/g, '-');
-    return `output/colorvision-${safeText}.png`;
+    const extension = format === 'svg' ? 'svg' : 'png';
+    return `output/colorvision-${safeText}.${extension}`;
   }
 
   /**
@@ -147,10 +191,20 @@ Color Examples:
       process.exit(1);
     }
 
-    const outputPath = this.generateOutputPath(options.text, options.output);
+    // Validate palette if specified
+    if (options.palette && !ColorPalettes.isValidPalette(options.palette)) {
+      console.error(`Error: Invalid palette "${options.palette}". Use --list-palettes to see available options.`);
+      process.exit(1);
+    }
+
+    const outputPath = this.generateOutputPath(options.text, options.output, options.format);
 
     try {
       console.log(`Generating color vision test for "${options.text}"...`);
+      if (options.palette) {
+        const palette = ColorPalettes.getPalette(options.palette);
+        console.log(`Using palette: ${palette.name}`);
+      }
       
       const generator = new ColorVisionGenerator({
         width: options.width,
@@ -163,13 +217,20 @@ Color Examples:
         offColor: options.offColor,
         margin: options.margin,
         circular: options.circular,
-        maxTextFit: options.maxTextFit
+        maxTextFit: options.maxTextFit,
+        palette: options.palette,
+        format: options.format,
+        transparent: options.transparent
       });
 
       const result = await generator.generate(options.text, outputPath);
       
       console.log(`\n✅ Successfully generated: ${result.outputPath}`);
+      console.log(`   Format: ${options.format.toUpperCase()}`);
       console.log(`   Circles used: ${result.circleCount}`);
+      if (options.transparent) {
+        console.log(`   Background: Transparent`);
+      }
       
     } catch (error) {
       console.error('❌ Error generating test:', error.message);

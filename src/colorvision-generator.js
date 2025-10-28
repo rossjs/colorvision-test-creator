@@ -1,6 +1,7 @@
 const TextProcessor = require('./utils/text-processor');
 const CirclePlacer = require('./utils/circle-placer');
 const CanvasUtils = require('./utils/canvas-utils');
+const ColorPalettes = require('./utils/color-palettes');
 
 /**
  * Default options for color vision test generation
@@ -23,7 +24,10 @@ const DEFAULT_OPTIONS = {
   margin: 50,            // Margin around text in pixels
   circular: false,       // Create circular image like traditional color vision tests
   circularBackgroundColor: '#F5F5F5', // Background color for circular images
-  maxTextFit: false      // Use maximum text size in circular mode (less safe margin)
+  maxTextFit: false,     // Use maximum text size in circular mode (less safe margin)
+  palette: null,         // Color palette name to use
+  format: 'png',         // Output format: 'png' or 'svg'
+  transparent: false     // Use transparent background
 };
 
 /**
@@ -40,6 +44,17 @@ const DEFAULT_OPTIONS = {
 class ColorVisionGenerator {
   constructor(options = {}) {
     this.options = { ...DEFAULT_OPTIONS, ...options };
+    
+    // Apply color palette if specified
+    if (this.options.palette) {
+      const palette = ColorPalettes.getPalette(this.options.palette);
+      if (palette) {
+        this.options.onColor = palette.onColor;
+        this.options.offColor = palette.offColor;
+      } else {
+        console.warn(`Warning: Palette "${this.options.palette}" not found. Using default colors.`);
+      }
+    }
   }
 
   /**
@@ -79,20 +94,30 @@ class ColorVisionGenerator {
     // Generate circles
     const circles = this._generateCircles(luminanceMap);
 
-    // Create output canvas and draw circles
-    const { canvas, ctx } = CanvasUtils.createOutputCanvas(width, height, circular, {
-      centerX, centerY, margin, circularBackgroundColor: options.circularBackgroundColor
-    });
+    // Handle output based on format
+    const { format, transparent } = options;
+    
+    if (format === 'svg') {
+      // Save directly as SVG for true vector format
+      CanvasUtils.saveCirclesAsSVG(circles, outputPath, width, height, transparent);
+    } else {
+      // Create output canvas and draw circles
+      const { canvas, ctx } = CanvasUtils.createOutputCanvas(width, height, circular, {
+        centerX, centerY, margin, 
+        circularBackgroundColor: options.circularBackgroundColor,
+        transparentBackground: transparent
+      });
 
-    CanvasUtils.drawCircles(ctx, circles);
+      CanvasUtils.drawCircles(ctx, circles);
 
-    // Restore context if circular clipping was used
-    if (circular) {
-      ctx.restore();
+      // Restore context if circular clipping was used
+      if (circular) {
+        ctx.restore();
+      }
+
+      // Save the result
+      CanvasUtils.saveCanvasToFile(canvas, outputPath, { format, transparent });
     }
-
-    // Save the result
-    CanvasUtils.saveCanvasToFile(canvas, outputPath);
 
     console.log(`Generated color vision test with ${circles.length} circles`);
     console.log(`Saved to: ${outputPath}`);

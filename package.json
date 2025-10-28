@@ -34,5 +34,8 @@
   "homepage": "https://github.com/username/colorvision-test-creator#readme",
   "dependencies": {
     "canvas": "^3.2.0"
+  },
+  "optionalDependencies": {
+    "canvas-to-svg": "^1.0.3"
   }
 }
