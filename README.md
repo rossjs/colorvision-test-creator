@@ -146,7 +146,7 @@ colorvision-test "A" --output letter-A.png  # Custom filename
 
 # Advanced options  
 colorvision-test "42" --size 1000 --font 400     # Large image with big font
-colorvision-test "3" --circular --margin 80      # Traditional circular plate
+colorvision-test "3" --circular --margin 50      # Traditional circular plate with margin
 colorvision-test "5" --circular --max-fit        # Maximum text size
 colorvision-test "HELLO" --on-color "#D2691E"    # Custom colors
 
@@ -168,7 +168,7 @@ Options:
   --tolerance      Color mixing tolerance (default: 0.1)
   --on-color       Color for text (default: #FF6B35)
   --off-color      Color for background (default: #4ECDC4)
-  --margin, -m     Margin around text in pixels (default: 50)
+  --margin, -m     Margin around text in pixels (default: 0)
   --circular, -c   Create circular image like traditional tests
   --max-fit        Use maximum text size in circular mode (less margin)
   --palette, -p    Use predefined color palette
@@ -281,7 +281,7 @@ Popular color combinations that work well for color blindness tests:
 
 - **fontSize**: Controls the size of the text pattern. Larger fonts create bolder, easier-to-see patterns.
 
-- **margin**: Pixels of space around the text area. Larger margins (80-120px) ensure text doesn't get too close to edges and improve readability. The font size is automatically adjusted to fit within the margin constraints.
+- **margin**: Pixels of space around the text area. Default is 0 for full canvas usage. Use larger margins (50-120px) if you want text to stay away from edges. The font size is automatically adjusted to fit within the margin constraints.
 
 - **circular**: Creates round images like traditional Ishihara plates instead of square ones. The circular boundary is automatically calculated based on canvas size and margin. Font size is automatically adjusted to fit within the circular area.
 
@@ -318,7 +318,7 @@ const generator = new ColorVisionGenerator(options);
 - `tolerance` (number): Color mixing tolerance (default: 0.1)
 - `onColor` (string): Text color hex code (default: '#FF6B35')
 - `offColor` (string): Background color hex code (default: '#4ECDC4')
-- `margin` (number): Margin around text in pixels (default: 50)
+- `margin` (number): Margin around text in pixels (default: 0)
 - `circular` (boolean): Create circular image (default: false)
 - `maxTextFit` (boolean): Use maximum text size in circular mode (default: false)
 - `palette` (string): Color palette name to use (default: null)
@@ -378,8 +378,9 @@ This will generate sample images showing:
 
 | Style | Command | Result |
 |-------|---------|---------|
-| **Basic Rectangular** | `colorvision-test "8"` | Standard rectangular PNG format |
-| **Traditional Circular** | `colorvision-test "3" --circular` | Classic round color vision plate |
+| **Basic Rectangular** | `colorvision-test "8"` | Full canvas rectangular format |
+| **Traditional Circular** | `colorvision-test "3" --circular` | Full canvas circular plate |
+| **With Margin** | `colorvision-test "5" --margin 50` | Add space around text |
 | **Color Palette** | `colorvision-test "A" --palette protanopia` | Red-blind optimized colors |
 | **SVG Vector** | `colorvision-test "5" --format svg` | Scalable vector format |
 | **Transparent Background** | `colorvision-test "8" --transparent` | PNG with transparent background |

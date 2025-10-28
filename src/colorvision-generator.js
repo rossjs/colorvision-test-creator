@@ -21,7 +21,7 @@ const DEFAULT_OPTIONS = {
   fontFamily: 'Arial, sans-serif',
   textColor: '#000000',  // Color for text rendering (before conversion)
   backgroundColor: '#FFFFFF', // Background color for text rendering
-  margin: 50,            // Margin around text in pixels
+  margin: 0,             // Margin around text in pixels (0 = full canvas usage)
   circular: false,       // Create circular image like traditional color vision tests
   circularBackgroundColor: '#F5F5F5', // Background color for circular images
   maxTextFit: false,     // Use maximum text size in circular mode (less safe margin)

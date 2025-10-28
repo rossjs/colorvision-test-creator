@@ -18,7 +18,7 @@ class ColorVisionCLI {
       tolerance: 0.1,
       onColor: '#FF6B35',
       offColor: '#4ECDC4',
-      margin: 50,
+      margin: 0,
       circular: false,
       maxTextFit: false,
       palette: null,
@@ -55,7 +55,7 @@ Options:
   --tolerance      Color mixing tolerance (default: 0.1)
   --on-color       Color for text (default: #FF6B35)
   --off-color      Color for background (default: #4ECDC4)
-  --margin, -m     Margin around text in pixels (default: 50)
+  --margin, -m     Margin around text in pixels (default: 0)
   --circular, -c   Create circular image like traditional tests
   --max-fit        Use maximum text size in circular mode (less margin)
   --palette, -p    Use predefined color palette
