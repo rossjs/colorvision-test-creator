@@ -3,8 +3,7 @@ output/*
 examples/output/*
 
 # Exception: Include specific images used in README documentation
-!output/showcase-8.png      # Header showcase image
-!output/demo-AI.png         # Multi-character demo image
+!output/colorvision.png     # Header showcase image
 
 # Node.js
 node_modules/

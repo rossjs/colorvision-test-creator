@@ -7,7 +7,7 @@
 > This software is provided for educational, demonstration, and artistic purposes only.
 
 <div align="center">
-  <img src="output/showcase-8.png" alt="ColorVision Test Creator Sample" width="400"/>
+  <img src="output/colorvision.png" alt="ColorVision Test Creator Sample" width="400"/>
   
   *Educational color vision test pattern generator inspired by traditional methods*
 </div>
