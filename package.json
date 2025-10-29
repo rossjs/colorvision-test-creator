@@ -26,12 +26,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/username/colorvision-test-creator.git"
+    "url": "git+https://github.com/rossjs/colorvision-test-creator.git"
   },
   "bugs": {
-    "url": "https://github.com/username/colorvision-test-creator/issues"
+    "url": "https://github.com/rossjs/colorvision-test-creator/issues"
   },
-  "homepage": "https://github.com/username/colorvision-test-creator#readme",
+  "homepage": "https://github.com/rossjs/colorvision-test-creator#readme",
   "dependencies": {
     "canvas": "^3.2.0"
   },

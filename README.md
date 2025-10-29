@@ -125,7 +125,7 @@ This software is provided solely for educational, artistic, and demonstration pu
 
 ```bash
 # Clone the repository
-git clone https://github.com/username/colorvision-test-creator.git
+git clone https://github.com/rossjs/colorvision-test-creator.git
 cd colorvision-test-creator
 
 # Install dependencies
